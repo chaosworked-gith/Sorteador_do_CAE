@@ -232,15 +232,16 @@ button { cursor: pointer; }
 .painel-in {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; gap: 16px;
+  overflow-y: auto;
   padding-block: 20px;
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
 }
-.abas { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--linha); }
+.abas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--linha); }
 .aba {
   background: none; border: 0; border-bottom: 3px solid transparent;
-  padding: 10px 4px 12px;
-  font-weight: 700; font-size: 15px; color: var(--texto-2);
+  padding: 10px 2px 12px;
+  font-weight: 700; font-size: 14px; color: var(--texto-2);
   display: inline-flex; justify-content: center; align-items: baseline; gap: 8px;
 }
 .aba[aria-selected="true"] { color: var(--branco); border-bottom-color: var(--vermelho); }
@@ -309,9 +310,52 @@ input[type="file"]:focus-visible + label.btn { outline: 3px solid var(--branco);
 .lista-sorteados .hora { font-size: 12px; color: var(--texto-3); font-variant-numeric: tabular-nums; }
 .lista-sorteados li:first-child .txt { color: var(--branco); }
 .vazio { padding: 18px 4px; color: var(--texto-3); font-size: 14px; border-bottom: 0 !important; display: block !important; }
-.status-salvo { margin: 0; font-size: 12px; color: var(--texto-3); border-top: 1px solid var(--linha); padding-top: 12px; }
+.status-salvo { margin: 0; font-size: 12px; color: var(--texto-3); }
 .status-salvo.alerta { color: var(--branco); background: var(--vermelho-escuro); padding: 8px 10px; border-radius: 4px; border: 0; }
 .so-leitura { margin: 0; font-size: 13px; color: var(--texto-2); background: var(--superficie); padding: 10px 12px; border-radius: 4px; }
+
+/* ---------- Brindes ---------- */
+.brinde-palco { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.brinde-rotulo { font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--texto-2); }
+.brinde-opcoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; }
+.opcao-brinde, .brinde-escolhido {
+  transform: skewX(var(--inclinacao));
+  padding: 8px 16px;
+  font-size: 14px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.opcao-brinde > span, .brinde-escolhido > span { display: inline-block; transform: skewX(10.75deg); }
+.opcao-brinde {
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  background: rgba(0, 13, 66, 0.35);
+  transition: background 0.15s ease-out, color 0.15s ease-out;
+}
+.opcao-brinde:hover { background: rgba(255, 255, 255, 0.14); }
+.opcao-brinde[aria-pressed="true"], .brinde-escolhido { background: var(--branco); color: var(--azul-marinho); border-color: var(--branco); }
+.brinde-escolhido { font-size: 18px; }
+.opcao-brinde small { font-size: 11px; font-weight: 900; margin-left: 8px; padding: 1px 6px; border-radius: 2px; background: rgba(255, 255, 255, 0.18); font-variant-numeric: tabular-nums; }
+.opcao-brinde[aria-pressed="true"] small { background: var(--azul-marinho); color: var(--branco); }
+.opcao-brinde:disabled { opacity: 0.4; cursor: not-allowed; background: transparent; }
+.opcao-brinde:disabled span { text-decoration: line-through; }
+.opcao-brinde:disabled small { text-decoration: none; display: inline-block; }
+.lista-brindes { flex: 0 1 auto; min-height: 0; }
+.lista-brindes li { grid-template-columns: minmax(0, 1fr) 92px 82px 24px; padding-block: 8px; }
+.lista-brindes .txt { font-weight: 700; }
+.qtd-b { width: 92px; padding: 5px 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.lista-brindes .resta-b { justify-self: end; }
+.resta-b { font-size: 12px; color: var(--texto-2); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.resta-b.acabou { color: var(--branco); background: var(--vermelho); padding: 1px 6px; border-radius: 2px; font-weight: 900; }
+.linha-campo { display: flex; gap: 8px; }
+.linha-campo .entrada { flex: 1; min-width: 0; }
+.linha-campo .qtd-nova { flex: 0 0 78px; }
+.lista-sorteados .info { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.sel-brinde {
+  background: var(--azul-marinho); border: 1px solid rgba(64, 105, 255, 0.6); border-radius: 4px;
+  padding: 3px 6px; font-size: 13px; max-width: 100%;
+}
+.brinde-txt { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-2); }
+.brinde-txt.sem-brinde { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--texto-3); }
+.acoes-finais { display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--linha); padding-top: 14px; }
+.acoes-finais .btn { flex: 1 1 auto; }
 
 /* ---------- Modal e aviso ---------- */
 .fundo-modal {
@@ -411,8 +455,13 @@ body.apresentando .painel { display: none; }
             <div class="placa-texto"><p class="nome espera" id="nome">Carregando o sorteio…</p></div>
           </div>
         </div>
+        <div class="brinde-palco" id="brinde-palco" hidden>
+          <div class="brinde-rotulo" id="brinde-rotulo">Brinde</div>
+          <div class="brinde-opcoes" id="brinde-opcoes" role="group" aria-labelledby="brinde-rotulo"></div>
+        </div>
         <div class="numeros" id="numeros" aria-live="off"></div>
         <button type="button" class="btn-sortear" id="btn-sortear" disabled><span id="rot-sortear">Sortear</span></button>
+        <button type="button" class="btn-sortear" id="btn-baixar-palco" hidden><span>Baixar planilha</span></button>
         <div class="dica" id="dica">ou aperte a barra de espaço</div>
       </div>
       <div class="grupo g2" aria-hidden="true">
@@ -431,6 +480,7 @@ body.apresentando .painel { display: none; }
     <div class="painel-in">
       <div class="abas" role="tablist">
         <button type="button" class="aba" role="tab" id="aba-part" aria-selected="true" aria-controls="sec-part">Participantes <span class="qtd" id="qtd-part">0</span></button>
+        <button type="button" class="aba" role="tab" id="aba-brindes" aria-selected="false" aria-controls="sec-brindes">Brindes <span class="qtd" id="qtd-brindes">0</span></button>
         <button type="button" class="aba" role="tab" id="aba-sort" aria-selected="false" aria-controls="sec-sort">Sorteados <span class="qtd" id="qtd-sort">0</span></button>
       </div>
 
@@ -442,7 +492,7 @@ body.apresentando .painel { display: none; }
         </div>
         <div class="campo so-editor">
           <label for="campo-nomes">Adicionar participantes</label>
-          <textarea class="entrada" id="campo-nomes" rows="4" placeholder="Cole os nomes aqui, um por linha"></textarea>
+          <textarea class="entrada" id="campo-nomes" rows="3" placeholder="Cole os nomes aqui, um por linha"></textarea>
           <div class="linha-botoes">
             <button type="button" class="btn btn-claro" id="btn-adicionar">Adicionar nomes</button>
             <input type="file" id="arquivo" class="oculto-visual" accept=".txt,.csv,text/plain,text/csv">
@@ -463,6 +513,20 @@ body.apresentando .painel { display: none; }
         </div>
       </section>
 
+      <section class="secao" id="sec-brindes" role="tabpanel" aria-labelledby="aba-brindes" hidden>
+        <p class="aviso so-editor">Antes de cada sorteio, escolha no palco qual brinde está valendo. Quando a quantidade de um brinde acaba, ele sai das opções.</p>
+        <ul class="lista lista-brindes" id="lista-brindes" aria-label="Brindes e quantidades"></ul>
+        <div class="campo so-editor">
+          <label for="campo-brinde">Adicionar brinde</label>
+          <div class="linha-campo">
+            <input class="entrada" id="campo-brinde" type="text" maxlength="40" placeholder="Nome do brinde" autocomplete="off">
+            <input class="entrada qtd-nova" id="campo-qtd" type="number" min="0" max="9999" step="1" inputmode="numeric" placeholder="Qtd." aria-label="Quantidade do novo brinde">
+            <button type="button" class="btn btn-contorno" id="btn-add-brinde">Adicionar</button>
+          </div>
+          <p class="aviso">Deixe a quantidade em branco para o brinde não ter limite.</p>
+        </div>
+      </section>
+
       <section class="secao" id="sec-sort" role="tabpanel" aria-labelledby="aba-sort" hidden>
         <ol class="lista lista-sorteados" id="lista-sort"></ol>
         <div class="linha-botoes">
@@ -472,6 +536,13 @@ body.apresentando .painel { display: none; }
         </div>
       </section>
 
+      <div class="acoes-finais">
+        <button type="button" class="btn btn-perigo so-editor" id="btn-encerrar">Encerrar sorteio</button>
+        <button type="button" class="btn btn-claro" id="btn-baixar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+          Baixar planilha (.xlsx)
+        </button>
+      </div>
       <p class="status-salvo" id="status-salvo"></p>
     </div>
   </aside>
@@ -500,6 +571,8 @@ body.apresentando .painel { display: none; }
   var DOC = "sorteio/atual";
   var TRAVA = "sorteio/trava";
   var TITULO_PADRAO = "Sorteio CAE";
+  var BRINDES_PADRAO = ["Boné", "Cooler", "Passa Fio", "GiftCard iFood"];
+  var MAX_BRINDES = 12;
   var ABA_ID = "aba-" + idAleatorio(10);
   var reduzMovimento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -517,7 +590,11 @@ body.apresentando .painel { display: none; }
     btnApagar: $("btn-apagar"), btnCopiar: $("btn-copiar"), btnDesfazer: $("btn-desfazer"), btnRecomecar: $("btn-recomecar"),
     statusSalvo: $("status-salvo"), notaLeitura: $("nota-leitura"),
     modal: $("modal"), modalTitulo: $("modal-titulo"), modalTexto: $("modal-texto"), modalArea: $("modal-area"),
-    modalOk: $("modal-ok"), modalCancelar: $("modal-cancelar"), toast: $("toast")
+    modalOk: $("modal-ok"), modalCancelar: $("modal-cancelar"), toast: $("toast"),
+    brindePalco: $("brinde-palco"), brindeRotulo: $("brinde-rotulo"), brindeOpcoes: $("brinde-opcoes"),
+    btnBaixarPalco: $("btn-baixar-palco"), btnBaixar: $("btn-baixar"), btnEncerrar: $("btn-encerrar"),
+    listaBrindes: $("lista-brindes"), campoBrinde: $("campo-brinde"), btnAddBrinde: $("btn-add-brinde"),
+    campoQtd: $("campo-qtd"), abaBrindes: $("aba-brindes"), secBrindes: $("sec-brindes"), qtdBrindes: $("qtd-brindes")
   };
 
   /* ---------- Utilidades ---------- */
@@ -553,9 +630,15 @@ body.apresentando .painel { display: none; }
     if (!seg) return "";
     try { return new Date(seg * 1000).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; }
   }
+  function dataBr(seg) {
+    if (!seg) return "";
+    try { return new Date(seg * 1000).toLocaleDateString("pt-BR"); } catch (e) { return ""; }
+  }
 
   /* ---------- Estado ---------- */
-  var estado = { titulo: TITULO_PADRAO, participantes: [], sorteados: [] };
+  function brindesPadrao() { return BRINDES_PADRAO.map(function (n) { return { nome: n, qtd: null }; }); }
+  var estado = { titulo: TITULO_PADRAO, brindes: brindesPadrao(), brindeAtual: "", participantes: [], sorteados: [], encerrado: false, encerradoEm: 0 };
+  var downloads = null;
   var modo = "carregando";        // carregando | db | local
   var podeEditar = false;
   var localOk = true;
@@ -578,9 +661,49 @@ body.apresentando .painel { display: none; }
     var sorteados = (Array.isArray(d.sorteados) ? d.sorteados : []).filter(function (s) {
       if (!s || typeof s.id !== "string" || !vistos[s.id] || jaSaiu[s.id]) return false;
       jaSaiu[s.id] = true; return true;
-    }).map(function (s) { return { id: s.id, em: typeof s.em === "number" ? s.em : 0 }; });
-    return { titulo: titulo, participantes: participantes, sorteados: sorteados };
+    }).map(function (s) {
+      var item = { id: s.id, em: typeof s.em === "number" ? s.em : 0 };
+      if (typeof s.brinde === "string" && s.brinde.trim()) item.brinde = s.brinde.trim().slice(0, 40);
+      return item;
+    });
+    // Cada brinde tem nome e quantidade; quantidade null quer dizer sem limite.
+    var brindes = brindesPadrao();
+    if (Array.isArray(d.brindes)) {
+      var chavesB = {};
+      brindes = d.brindes.map(function (b) {
+        if (typeof b === "string") return { nome: b, qtd: null };
+        if (b && typeof b.nome === "string") return { nome: b.nome, qtd: b.qtd };
+        return null;
+      }).filter(function (b) {
+        if (!b || !b.nome.trim() || chavesB[chave(b.nome)]) return false;
+        chavesB[chave(b.nome)] = true; return true;
+      }).map(function (b) {
+        var q = typeof b.qtd === "number" && isFinite(b.qtd) ? Math.max(0, Math.min(9999, Math.floor(b.qtd))) : null;
+        return { nome: b.nome.trim().slice(0, 40), qtd: q };
+      }).slice(0, MAX_BRINDES);
+    }
+    var brindeAtual = typeof d.brindeAtual === "string" && brindes.some(function (b) { return b.nome === d.brindeAtual; }) ? d.brindeAtual : "";
+    return {
+      titulo: titulo, brindes: brindes, brindeAtual: brindeAtual, participantes: participantes, sorteados: sorteados,
+      encerrado: d.encerrado === true, encerradoEm: typeof d.encerradoEm === "number" ? d.encerradoEm : 0
+    };
   }
+  function entregues(e) {
+    var c = {};
+    e.sorteados.forEach(function (s) { if (s.brinde) c[s.brinde] = (c[s.brinde] || 0) + 1; });
+    return c;
+  }
+  // Quantas unidades do brinde ainda podem sair (Infinity quando não tem limite).
+  function estoque(e, nome) {
+    var b = e.brindes.filter(function (x) { return x.nome === nome; })[0];
+    if (!b) return 0;
+    if (b.qtd === null) return Infinity;
+    return Math.max(0, b.qtd - (entregues(e)[nome] || 0));
+  }
+  function algumDisponivel(e) { return e.brindes.some(function (b) { return estoque(e, b.nome) > 0; }); }
+  function brindeProntoParaSortear(e) { return !e.brindes.length || (!!e.brindeAtual && estoque(e, e.brindeAtual) > 0); }
+  // Salva o estado atual com as mudanças pedidas, sem perder os outros campos.
+  function atualizar(mudancas) { return salvar(Object.assign({}, estado, mudancas)); }
   function mapaNomes(e) { var m = {}; e.participantes.forEach(function (p) { m[p.id] = p.nome; }); return m; }
   function emDisputa(e) {
     var saiu = {}; e.sorteados.forEach(function (s) { saiu[s.id] = true; });
@@ -629,9 +752,10 @@ body.apresentando .painel { display: none; }
       try {
         var r = await Promise.all([
           window.claude.use("db").catch(function () { return null; }),
-          window.claude.use("user").catch(function () { return null; })
+          window.claude.use("user").catch(function () { return null; }),
+          window.claude.use("downloads").catch(function () { return null; })
         ]);
-        db = r[0]; user = r[1];
+        db = r[0]; user = r[1]; downloads = r[2];
       } catch (e) { db = null; }
     }
     if (db) {
@@ -666,8 +790,9 @@ body.apresentando .painel { display: none; }
 
   /* ---------- Sorteio ---------- */
   async function sortear() {
-    if (!podeEditar || animando || gravando || modo === "carregando") return;
+    if (!podeEditar || animando || gravando || modo === "carregando" || estado.encerrado) return;
     if (!emDisputa(estado).length) return;
+    if (!brindeProntoParaSortear(estado)) { aviso("Escolha o brinde da vez antes de sortear."); return; }
     Som.destravar();
     gravando = true;
     atualizarBotao();
@@ -684,14 +809,16 @@ body.apresentando .painel { display: none; }
         var snap = await docRef.get();
         base = normalizar(snap.exists ? snap.data() : null);
       }
+      if (base.encerrado) { aviso("Este sorteio já foi encerrado."); return; }
       var restantes = emDisputa(base);
       if (!restantes.length) { aviso("Todos os nomes já foram sorteados."); return; }
+      if (!brindeProntoParaSortear(base)) { aviso("Escolha o brinde da vez antes de sortear."); return; }
       var escolhido = restantes[sorteioJusto(restantes.length)];
-      var novo = {
-        titulo: base.titulo,
-        participantes: base.participantes,
-        sorteados: base.sorteados.concat([{ id: escolhido.id, em: Math.floor(Date.now() / 1000) }])
-      };
+      var item = { id: escolhido.id, em: Math.floor(Date.now() / 1000) };
+      if (base.brindeAtual) item.brinde = base.brindeAtual;
+      var novo = Object.assign({}, base, { sorteados: base.sorteados.concat([item]) });
+      // Se este sorteio levou a última unidade, o próximo brinde precisa ser escolhido de novo.
+      if (novo.brindeAtual && estoque(novo, novo.brindeAtual) <= 0) novo.brindeAtual = "";
       await salvar(novo);
     } catch (e) {
       aviso("O sorteio não foi registrado. Verifique a conexão e tente de novo.");
@@ -707,10 +834,11 @@ body.apresentando .painel { display: none; }
     atualizarBotao();
     var nomes = mapaNomes(estado);
     var pool = estado.participantes.map(function (p) { return p.nome; });
+    var brinde = (estado.sorteados[numero - 1] || {}).brinde || "";
     el.placa.classList.remove("revelado");
     if (!reduzMovimento && pool.length > 1) {
       el.placa.classList.add("girando");
-      el.selo.textContent = "Sorteando…";
+      el.selo.textContent = brinde ? "Sorteando: " + brinde : "Sorteando…";
       el.nome.classList.remove("espera");
       var d = 45;
       while (d < 340) {
@@ -724,7 +852,7 @@ body.apresentando .painel { display: none; }
       if (token !== tokenAnim) return;
       el.placa.classList.remove("girando");
     }
-    mostrarVencedor(nomes[id] || "", numero);
+    mostrarVencedor(nomes[id] || "", numero, brinde);
     void el.placa.offsetWidth;
     el.placa.classList.add("revelado");
     el.anuncio.textContent = "Sorteado número " + numero + ": " + (nomes[id] || "");
@@ -736,8 +864,8 @@ body.apresentando .painel { display: none; }
   }
 
   /* ---------- Palco ---------- */
-  function mostrarVencedor(nome, numero) {
-    el.selo.textContent = "Sorteado nº " + numero;
+  function mostrarVencedor(nome, numero, brinde) {
+    el.selo.textContent = "Sorteado nº " + numero + (brinde ? " · " + brinde : "");
     el.nome.classList.remove("espera");
     el.nome.textContent = nome;
     ajustarNome();
@@ -752,12 +880,13 @@ body.apresentando .painel { display: none; }
   function mostrarPalco() {
     el.tituloPalco.textContent = estado.titulo;
     if (modo === "carregando") { mostrarEspera("Aguarde", "Carregando o sorteio…"); }
+    else if (estado.encerrado) { mostrarEspera("Encerrado", "Sorteio encerrado"); }
     else if (!estado.participantes.length) { mostrarEspera(estado.titulo, "Adicione os participantes"); }
     else if (!estado.sorteados.length) { mostrarEspera("Próximo: nº 1", "Pronto para sortear"); }
     else {
       var n = estado.sorteados.length;
       el.placa.classList.remove("girando");
-      mostrarVencedor(mapaNomes(estado)[estado.sorteados[n - 1].id] || "", n);
+      mostrarVencedor(mapaNomes(estado)[estado.sorteados[n - 1].id] || "", n, estado.sorteados[n - 1].brinde);
     }
     atualizarBotao();
   }
@@ -800,23 +929,341 @@ body.apresentando .painel { display: none; }
       s.textContent = podeEditar ? "Cole a lista no painel de participantes para começar." : "A lista de participantes ainda está vazia.";
       el.numeros.appendChild(s);
     }
-    el.btnSortear.hidden = !podeEditar;
+    var fechado = estado.encerrado;
+    el.btnSortear.hidden = !podeEditar || fechado;
+    el.btnBaixarPalco.hidden = !fechado || modo === "carregando";
     var concluido = total > 0 && resta === 0;
-    el.rotSortear.textContent = concluido ? "Sorteio concluído" : "Sortear";
-    el.btnSortear.disabled = modo === "carregando" || animando || gravando || resta === 0;
-    if (!podeEditar && modo !== "carregando") {
+    var esgotados = estado.brindes.length > 0 && !algumDisponivel(estado);
+    var pronto = brindeProntoParaSortear(estado);
+    el.rotSortear.textContent = concluido ? "Sorteio concluído" : esgotados ? "Brindes esgotados" : "Sortear";
+    el.btnSortear.disabled = modo === "carregando" || animando || gravando || resta === 0 || !pronto;
+    if (fechado) {
+      el.dica.className = "dica";
+      el.dica.textContent = "A planilha traz os sorteados e os brindes de cada um.";
+      el.dica.hidden = false;
+    } else if (!podeEditar && modo !== "carregando") {
       el.dica.className = "ao-vivo";
       el.dica.textContent = "Ao vivo";
       el.dica.hidden = false;
     } else {
       el.dica.className = "dica";
-      el.dica.textContent = concluido ? "Todos os nomes já saíram." : "ou aperte a barra de espaço";
+      if (concluido) el.dica.textContent = "Todos os nomes já saíram.";
+      else if (esgotados) el.dica.textContent = "Todos os brindes foram entregues. Encerre o sorteio para baixar a planilha.";
+      else if (!pronto) el.dica.textContent = "Escolha o brinde da vez para sortear (teclas 1 a " + Math.min(9, estado.brindes.length) + ")";
+      else el.dica.textContent = "ou aperte a barra de espaço";
       el.dica.hidden = modo === "carregando" || !total;
     }
-    el.btnDesfazer.disabled = !feitos || animando;
-    el.btnRecomecar.disabled = !feitos || animando;
+    el.btnDesfazer.disabled = !feitos || animando || fechado;
+    el.btnRecomecar.disabled = !feitos || animando || fechado;
     el.btnCopiar.disabled = !feitos;
-    el.btnApagar.disabled = !total || animando;
+    el.btnApagar.disabled = !total || animando || fechado;
+    el.btnAdicionar.disabled = fechado;
+    el.btnEncerrar.textContent = fechado ? "Reabrir sorteio" : "Encerrar sorteio";
+    el.btnEncerrar.className = "btn so-editor " + (fechado ? "btn-contorno" : "btn-perigo");
+    el.btnEncerrar.disabled = modo === "carregando" || animando || (!fechado && !total);
+    el.btnBaixar.disabled = modo === "carregando" || !feitos;
+    renderBrindePalco();
+  }
+
+  /* ---------- Brinde de cada sorteado ---------- */
+  // O brinde da vez é escolhido antes do sorteio e vale para quem sair.
+  function renderBrindePalco() {
+    var mostrar = modo !== "carregando" && !animando && !estado.encerrado && estado.brindes.length > 0 && estado.participantes.length > 0;
+    if (mostrar && !podeEditar && !estado.brindeAtual) mostrar = false;
+    el.brindePalco.hidden = !mostrar;
+    if (!mostrar) return;
+    var focado = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.brinde : null;
+    var frag = document.createDocumentFragment();
+    if (podeEditar) {
+      el.brindeRotulo.textContent = !algumDisponivel(estado) ? "Todos os brindes foram entregues"
+        : estado.brindeAtual ? "Brinde da vez" : "Escolha o brinde da vez";
+      estado.brindes.forEach(function (b, i) {
+        var sobra = estoque(estado, b.nome);
+        var bt = document.createElement("button");
+        bt.type = "button";
+        bt.className = "opcao-brinde";
+        bt.dataset.brinde = b.nome;
+        bt.setAttribute("aria-pressed", String(estado.brindeAtual === b.nome));
+        bt.disabled = sobra <= 0;
+        if (i < 9 && sobra > 0) bt.title = "Atalho: tecla " + (i + 1);
+        var s = document.createElement("span");
+        s.textContent = b.nome;
+        if (b.qtd !== null) {
+          var q = document.createElement("small");
+          q.textContent = sobra > 0 ? fmt(sobra) : "esgotado";
+          s.appendChild(q);
+        }
+        bt.appendChild(s);
+        frag.appendChild(bt);
+      });
+    } else {
+      el.brindeRotulo.textContent = "Brinde da vez";
+      var tag = document.createElement("div");
+      tag.className = "brinde-escolhido";
+      var t = document.createElement("span");
+      t.textContent = estado.brindeAtual;
+      tag.appendChild(t);
+      frag.appendChild(tag);
+    }
+    el.brindeOpcoes.replaceChildren(frag);
+    if (focado) {
+      var volta = el.brindeOpcoes.querySelector('[data-brinde="' + CSS.escape(focado) + '"]');
+      if (volta) volta.focus();
+    }
+  }
+
+  function definirBrinde(id, brinde) {
+    var sorteados = estado.sorteados.map(function (s) {
+      if (s.id !== id) return s;
+      var novo = { id: s.id, em: s.em };
+      if (brinde) novo.brinde = brinde;
+      return novo;
+    });
+    return atualizar({ sorteados: sorteados }).catch(function () { aviso("O brinde não foi salvo. Tente de novo."); });
+  }
+
+  function escolherBrinde(nome) {
+    if (!podeEditar || estado.encerrado || animando || nome === estado.brindeAtual) return;
+    if (estoque(estado, nome) <= 0) { aviso("Esse brinde já acabou."); return; }
+    atualizar({ brindeAtual: nome }).catch(function () { aviso("O brinde da vez não foi salvo. Tente de novo."); });
+  }
+
+  function lerQuantidade(texto) {
+    var v = String(texto).trim();
+    if (v === "") return null;
+    var n = Math.floor(Number(v));
+    return isFinite(n) ? Math.max(0, Math.min(9999, n)) : undefined;
+  }
+
+  function renderBrindesPainel() {
+    el.qtdBrindes.textContent = fmt(estado.brindes.length);
+    // Não redesenha enquanto alguém digita uma quantidade, para não perder o que foi digitado.
+    if (document.activeElement && document.activeElement.classList.contains("qtd-b")) return;
+    var dados = entregues(estado);
+    var frag = document.createDocumentFragment();
+    estado.brindes.forEach(function (b) {
+      var li = document.createElement("li");
+      var t = document.createElement("span"); t.className = "txt"; t.textContent = b.nome;
+      li.appendChild(t);
+      if (podeEditar) {
+        var q = document.createElement("input");
+        q.type = "number"; q.min = "0"; q.max = "9999"; q.step = "1"; q.inputMode = "numeric";
+        q.className = "entrada qtd-b"; q.dataset.brinde = b.nome;
+        q.placeholder = "Sem limite";
+        q.value = b.qtd === null ? "" : String(b.qtd);
+        q.setAttribute("aria-label", "Quantidade de " + b.nome);
+        li.appendChild(q);
+      } else {
+        li.appendChild(document.createElement("span"));
+      }
+      var r = document.createElement("span");
+      var saiu = dados[b.nome] || 0;
+      if (b.qtd === null) { r.className = "resta-b"; r.textContent = fmt(saiu) + (saiu === 1 ? " entregue" : " entregues"); }
+      else if (b.qtd - saiu <= 0) { r.className = "resta-b acabou"; r.textContent = "Esgotado"; }
+      else { r.className = "resta-b"; r.textContent = fmt(b.qtd - saiu) + " de " + fmt(b.qtd); }
+      li.appendChild(r);
+      if (podeEditar) {
+        var bt = document.createElement("button");
+        bt.type = "button"; bt.className = "remover"; bt.dataset.brinde = b.nome;
+        bt.setAttribute("aria-label", "Remover o brinde " + b.nome);
+        bt.title = "Remover";
+        bt.innerHTML = iconeX;
+        li.appendChild(bt);
+      } else {
+        li.appendChild(document.createElement("span"));
+      }
+      frag.appendChild(li);
+    });
+    if (!estado.brindes.length) {
+      var v = document.createElement("li"); v.className = "vazio";
+      v.textContent = "Nenhum brinde cadastrado. Sem brindes, o sorteio funciona só com os nomes.";
+      frag.appendChild(v);
+    }
+    el.listaBrindes.replaceChildren(frag);
+    el.btnAddBrinde.disabled = estado.brindes.length >= MAX_BRINDES;
+  }
+
+  function adicionarBrinde() {
+    var nome = el.campoBrinde.value.replace(/\s+/g, " ").trim().slice(0, 40);
+    var qtd = lerQuantidade(el.campoQtd.value);
+    if (!nome) { el.campoBrinde.focus(); return; }
+    if (qtd === undefined) { aviso("A quantidade precisa ser um número."); el.campoQtd.focus(); return; }
+    if (estado.brindes.some(function (b) { return chave(b.nome) === chave(nome); })) { aviso("Esse brinde já está na lista."); return; }
+    if (estado.brindes.length >= MAX_BRINDES) { aviso("A lista aceita até " + MAX_BRINDES + " brindes."); return; }
+    atualizar({ brindes: estado.brindes.concat([{ nome: nome, qtd: qtd }]) })
+      .then(function () { el.campoBrinde.value = ""; el.campoQtd.value = ""; el.campoBrinde.focus(); })
+      .catch(function () { aviso("O brinde não foi salvo. Tente de novo."); });
+  }
+
+  /* ---------- Planilha XLSX ---------- */
+  // Gera um arquivo .xlsx de verdade (um zip com as partes XML do Excel), sem biblioteca externa.
+  var Xlsx = (function () {
+    var enc = new TextEncoder();
+    var tabela = (function () {
+      var t = new Uint32Array(256);
+      for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+      return t;
+    })();
+    function crc32(b) {
+      var c = 0xFFFFFFFF;
+      for (var i = 0; i < b.length; i++) c = tabela[(c ^ b[i]) & 0xFF] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0;
+    }
+    function esc(s) {
+      return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    function coluna(i) {
+      var s = ""; i++;
+      while (i > 0) { var m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); }
+      return s;
+    }
+    var XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+    var NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+    var NS_R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+    function planilha(aba) {
+      var x = XML + '<worksheet xmlns="' + NS + '" xmlns:r="' + NS_R + '">';
+      x += '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>';
+      x += "<cols>" + aba.larguras.map(function (w, i) { return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>'; }).join("") + "</cols>";
+      x += "<sheetData>";
+      aba.linhas.forEach(function (linha, r) {
+        x += '<row r="' + (r + 1) + '">';
+        linha.forEach(function (v, c) {
+          if (v === null || v === undefined || v === "") return;
+          var ref = coluna(c) + (r + 1), estilo = r === 0 ? ' s="1"' : "";
+          if (typeof v === "number") x += '<c r="' + ref + '"' + estilo + "><v>" + v + "</v></c>";
+          else x += '<c r="' + ref + '"' + estilo + ' t="inlineStr"><is><t xml:space="preserve">' + esc(v) + "</t></is></c>";
+        });
+        x += "</row>";
+      });
+      return x + "</sheetData></worksheet>";
+    }
+    function zip(arquivos) {
+      var agora = new Date();
+      var hora_ = (agora.getHours() << 11) | (agora.getMinutes() << 5) | (agora.getSeconds() >> 1);
+      var data_ = ((agora.getFullYear() - 1980) << 9) | ((agora.getMonth() + 1) << 5) | agora.getDate();
+      var partes = [], central = [], pos = 0;
+      arquivos.forEach(function (a) {
+        var nome = enc.encode(a.nome), dados = enc.encode(a.texto), crc = crc32(dados);
+        var lh = new DataView(new ArrayBuffer(30));
+        lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+        lh.setUint16(10, hora_, true); lh.setUint16(12, data_, true); lh.setUint32(14, crc, true);
+        lh.setUint32(18, dados.length, true); lh.setUint32(22, dados.length, true); lh.setUint16(26, nome.length, true); lh.setUint16(28, 0, true);
+        partes.push(new Uint8Array(lh.buffer), nome, dados);
+        var ch = new DataView(new ArrayBuffer(46));
+        ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+        ch.setUint16(12, hora_, true); ch.setUint16(14, data_, true); ch.setUint32(16, crc, true);
+        ch.setUint32(20, dados.length, true); ch.setUint32(24, dados.length, true); ch.setUint16(28, nome.length, true);
+        ch.setUint16(30, 0, true); ch.setUint16(32, 0, true); ch.setUint16(34, 0, true); ch.setUint16(36, 0, true); ch.setUint32(38, 0, true); ch.setUint32(42, pos, true);
+        central.push(new Uint8Array(ch.buffer), nome);
+        pos += 30 + nome.length + dados.length;
+      });
+      var tamCentral = central.reduce(function (s, p) { return s + p.length; }, 0);
+      var fim = new DataView(new ArrayBuffer(22));
+      fim.setUint32(0, 0x06054b50, true); fim.setUint16(4, 0, true); fim.setUint16(6, 0, true);
+      fim.setUint16(8, arquivos.length, true); fim.setUint16(10, arquivos.length, true);
+      fim.setUint32(12, tamCentral, true); fim.setUint32(16, pos, true); fim.setUint16(20, 0, true);
+      var tudo = partes.concat(central, [new Uint8Array(fim.buffer)]);
+      var total = tudo.reduce(function (s, p) { return s + p.length; }, 0), saida = new Uint8Array(total), p = 0;
+      tudo.forEach(function (parte) { saida.set(parte, p); p += parte.length; });
+      return saida;
+    }
+    function gerar(abas) {
+      var tipos = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+        '<Default Extension="xml" ContentType="application/xml"/>' +
+        '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+        '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+        abas.map(function (_, i) { return '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'; }).join("") +
+        "</Types>";
+      var rels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+        '<Relationship Id="rId1" Type="' + NS_R + '/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+      var livro = XML + '<workbook xmlns="' + NS + '" xmlns:r="' + NS_R + '"><bookViews><workbookView/></bookViews><sheets>' +
+        abas.map(function (a, i) { return '<sheet name="' + esc(a.nome) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>'; }).join("") +
+        "</sheets></workbook>";
+      var livroRels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+        abas.map(function (_, i) { return '<Relationship Id="rId' + (i + 1) + '" Type="' + NS_R + '/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>'; }).join("") +
+        '<Relationship Id="rId' + (abas.length + 1) + '" Type="' + NS_R + '/styles" Target="styles.xml"/></Relationships>';
+      var estilos = XML + '<styleSheet xmlns="' + NS + '">' +
+        '<fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font></fonts>' +
+        '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF001780"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+        '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+        '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+        '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>' +
+        '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+      var arquivos = [
+        { nome: "[Content_Types].xml", texto: tipos },
+        { nome: "_rels/.rels", texto: rels },
+        { nome: "xl/workbook.xml", texto: livro },
+        { nome: "xl/_rels/workbook.xml.rels", texto: livroRels },
+        { nome: "xl/styles.xml", texto: estilos }
+      ];
+      abas.forEach(function (a, i) { arquivos.push({ nome: "xl/worksheets/sheet" + (i + 1) + ".xml", texto: planilha(a) }); });
+      return zip(arquivos);
+    }
+    return { gerar: gerar };
+  })();
+
+  function planilhaResultado(e) {
+    var nomes = mapaNomes(e);
+    var numeroDe = {}, brindeDe = {}, contagem = {};
+    e.sorteados.forEach(function (s, i) {
+      numeroDe[s.id] = i + 1;
+      brindeDe[s.id] = s.brinde || "";
+      var b = s.brinde || "Sem brinde";
+      contagem[b] = (contagem[b] || 0) + 1;
+    });
+    var sorteados = [["Nº", "Nome", "Brinde", "Data", "Hora"]].concat(e.sorteados.map(function (s, i) {
+      return [i + 1, nomes[s.id] || "", s.brinde || "", dataBr(s.em), hora(s.em)];
+    }));
+    var brindes = [["Brinde", "Quantidade", "Sorteados", "Sobraram"]];
+    e.brindes.forEach(function (b) {
+      var saiu = contagem[b.nome] || 0;
+      brindes.push([b.nome, b.qtd === null ? "Sem limite" : b.qtd, saiu, b.qtd === null ? "" : Math.max(0, b.qtd - saiu)]);
+    });
+    Object.keys(contagem).forEach(function (n) {
+      if (n !== "Sem brinde" && !e.brindes.some(function (b) { return b.nome === n; })) brindes.push([n, "", contagem[n], ""]);
+    });
+    if (contagem["Sem brinde"]) brindes.push(["Sem brinde", "", contagem["Sem brinde"], ""]);
+    brindes.push(["Total", "", e.sorteados.length, ""]);
+    var participantes = [["Nº", "Nome", "Sorteado", "Nº do sorteio", "Brinde"]].concat(e.participantes.map(function (p, i) {
+      var n = numeroDe[p.id];
+      return [i + 1, p.nome, n ? "Sim" : "Não", n || "", n ? brindeDe[p.id] : ""];
+    }));
+    return Xlsx.gerar([
+      { nome: "Sorteados", linhas: sorteados, larguras: [8, 42, 24, 14, 10] },
+      { nome: "Brindes", linhas: brindes, larguras: [28, 14, 12, 12] },
+      { nome: "Participantes", linhas: participantes, larguras: [8, 42, 12, 16, 24] }
+    ]);
+  }
+
+  function nomeArquivo(e) {
+    var d = new Date(), dia = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var titulo = e.titulo.replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").trim() || TITULO_PADRAO;
+    return titulo + " - resultado " + dia + ".xlsx";
+  }
+
+  async function baixarPlanilha(e) {
+    e = e || estado;
+    if (!e.sorteados.length) { aviso("Ainda não há sorteados para colocar na planilha."); return; }
+    var dados = planilhaResultado(e), nome = nomeArquivo(e);
+    if (downloads) {
+      try {
+        await downloads.save({ filename: nome, data: dados });
+        aviso("Planilha salva: " + nome);
+      } catch (err) {
+        if (err && err.code === "declined") return;
+        if (err && err.code === "rate_limited") { aviso("Já existe um download aguardando confirmação."); return; }
+        aviso("Não foi possível baixar a planilha aqui. Use a versão em arquivo do sorteador.");
+      }
+      return;
+    }
+    var url = URL.createObjectURL(new Blob([dados], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+    var a = document.createElement("a");
+    a.href = url; a.download = nome;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+    aviso("Planilha baixada: " + nome);
   }
 
   /* ---------- Painel ---------- */
@@ -827,6 +1274,7 @@ body.apresentando .painel { display: none; }
     el.qtdSort.textContent = fmt(estado.sorteados.length);
     if (document.activeElement !== el.campoTitulo) el.campoTitulo.value = estado.titulo;
     el.tituloPalco.textContent = estado.titulo;
+    renderBrindesPainel();
     renderParticipantes();
     renderSorteados();
     renderStatus();
@@ -879,9 +1327,30 @@ body.apresentando .painel { display: none; }
       var s = estado.sorteados[i];
       var li = document.createElement("li");
       var n = document.createElement("span"); n.className = "n"; n.textContent = "Nº " + (i + 1);
+      var info = document.createElement("div"); info.className = "info";
       var t = document.createElement("span"); t.className = "txt"; t.textContent = nomes[s.id] || "";
+      info.appendChild(t);
+      if (podeEditar && !estado.encerrado) {
+        var sel = document.createElement("select");
+        sel.className = "sel-brinde"; sel.dataset.id = s.id;
+        sel.setAttribute("aria-label", "Brinde de " + (nomes[s.id] || "sorteado nº " + (i + 1)));
+        var opcoes = [""].concat(estado.brindes.map(function (b) { return b.nome; }));
+        if (s.brinde && opcoes.indexOf(s.brinde) === -1) opcoes.push(s.brinde);
+        opcoes.forEach(function (b) {
+          var o = document.createElement("option");
+          o.value = b; o.textContent = b || "Sem brinde";
+          if ((s.brinde || "") === b) o.selected = true;
+          sel.appendChild(o);
+        });
+        info.appendChild(sel);
+      } else {
+        var bt = document.createElement("span");
+        bt.className = "brinde-txt" + (s.brinde ? "" : " sem-brinde");
+        bt.textContent = s.brinde || "Sem brinde";
+        info.appendChild(bt);
+      }
       var h = document.createElement("span"); h.className = "hora"; h.textContent = hora(s.em);
-      li.appendChild(n); li.appendChild(t); li.appendChild(h);
+      li.appendChild(n); li.appendChild(info); li.appendChild(h);
       frag.appendChild(li);
     }
     if (!estado.sorteados.length) {
@@ -910,11 +1379,10 @@ body.apresentando .painel { display: none; }
   }
 
   function trocarAba(qual) {
-    var part = qual === "part";
-    el.abaPart.setAttribute("aria-selected", String(part));
-    el.abaSort.setAttribute("aria-selected", String(!part));
-    el.secPart.hidden = !part;
-    el.secSort.hidden = part;
+    [["part", el.abaPart, el.secPart], ["brindes", el.abaBrindes, el.secBrindes], ["sort", el.abaSort, el.secSort]].forEach(function (a) {
+      a[1].setAttribute("aria-selected", String(a[0] === qual));
+      a[2].hidden = a[0] !== qual;
+    });
   }
 
   /* ---------- Adicionar nomes ---------- */
@@ -960,7 +1428,7 @@ body.apresentando .painel { display: none; }
     if (fora) partes.push("limite de " + fmt(LIMITE) + " participantes atingido, " + fmt(fora) + " ficaram de fora");
     el.avisoAdicionar.textContent = partes.join(". ") + ".";
     if (!novos.length) return Promise.resolve(false);
-    return salvar({ titulo: estado.titulo, participantes: estado.participantes.concat(novos), sorteados: estado.sorteados })
+    return atualizar({ participantes: estado.participantes.concat(novos) })
       .then(function () { return true; })
       .catch(function () { aviso("Os nomes não foram salvos. Verifique a conexão e tente de novo."); return false; });
   }
@@ -1017,7 +1485,7 @@ body.apresentando .painel { display: none; }
     var nomes = mapaNomes(estado);
     var linhas = estado.sorteados.map(function (s, i) {
       var h = hora(s.em);
-      return (i + 1) + ". " + (nomes[s.id] || "") + (h ? " (" + h + ")" : "");
+      return (i + 1) + ". " + (nomes[s.id] || "") + (h ? " (" + h + ")" : "") + (s.brinde ? ": " + s.brinde : "");
     });
     return estado.titulo + ": sorteados\n" + linhas.join("\n");
   }
@@ -1164,8 +1632,15 @@ body.apresentando .painel { display: none; }
       if (e.key === "Escape") { e.preventDefault(); fecharModal(false); }
       return;
     }
-    if (e.code !== "Space" && e.key !== "Enter") return;
     var alvo = e.target;
+    var digitando = alvo && alvo.closest && alvo.closest("input, textarea, select, [contenteditable]");
+    // Teclas 1 a 9 escolhem o brinde do último sorteado.
+    if (/^[1-9]$/.test(e.key) && !digitando && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      var b = estado.brindes[Number(e.key) - 1];
+      if (podeEditar && b && !animando && !estado.encerrado && estoque(estado, b.nome) > 0) { e.preventDefault(); escolherBrinde(b.nome); }
+      return;
+    }
+    if (e.code !== "Space" && e.key !== "Enter") return;
     if (alvo && alvo.closest && alvo.closest("input, textarea, button, select, label, a, [contenteditable]")) return;
     e.preventDefault();
     sortear();
@@ -1173,6 +1648,7 @@ body.apresentando .painel { display: none; }
 
   el.abaPart.addEventListener("click", function () { trocarAba("part"); });
   el.abaSort.addEventListener("click", function () { trocarAba("sort"); });
+  el.abaBrindes.addEventListener("click", function () { trocarAba("brindes"); });
 
   el.btnAdicionar.addEventListener("click", function () {
     var texto = el.campoNomes.value;
@@ -1190,7 +1666,7 @@ body.apresentando .painel { display: none; }
   el.campoTitulo.addEventListener("change", function () {
     var t = el.campoTitulo.value.trim().slice(0, 60) || TITULO_PADRAO;
     if (t === estado.titulo) return;
-    salvar({ titulo: t, participantes: estado.participantes, sorteados: estado.sorteados })
+    atualizar({ titulo: t })
       .catch(function () { aviso("O nome do sorteio não foi salvo. Tente de novo."); });
   });
   el.campoTitulo.addEventListener("keydown", function (e) { if (e.key === "Enter") el.campoTitulo.blur(); });
@@ -1202,7 +1678,7 @@ body.apresentando .painel { display: none; }
     if (!b || !podeEditar) return;
     var id = b.dataset.id;
     if (estado.sorteados.some(function (s) { return s.id === id; })) return;
-    salvar({ titulo: estado.titulo, participantes: estado.participantes.filter(function (p) { return p.id !== id; }), sorteados: estado.sorteados })
+    atualizar({ participantes: estado.participantes.filter(function (p) { return p.id !== id; }) })
       .catch(function () { aviso("Não foi possível remover. Tente de novo."); });
   });
 
@@ -1210,7 +1686,7 @@ body.apresentando .painel { display: none; }
     var total = estado.participantes.length;
     var ok = await confirmar("Apagar a lista?", "Os " + fmt(total) + " participantes e o histórico de sorteados serão apagados. Isso não pode ser desfeito.", "Apagar lista");
     if (!ok) return;
-    salvar({ titulo: estado.titulo, participantes: [], sorteados: [] }).catch(function () { aviso("Não foi possível apagar. Tente de novo."); });
+    atualizar({ participantes: [], sorteados: [], encerrado: false, encerradoEm: 0 }).catch(function () { aviso("Não foi possível apagar. Tente de novo."); });
     el.avisoAdicionar.textContent = "";
   });
   el.btnDesfazer.addEventListener("click", async function () {
@@ -1219,14 +1695,14 @@ body.apresentando .painel { display: none; }
     var nome = mapaNomes(estado)[estado.sorteados[n - 1].id] || "";
     var ok = await confirmar("Desfazer o sorteio nº " + n + "?", "O nome " + nome + " volta para a disputa e pode sair de novo.", "Desfazer");
     if (!ok) return;
-    salvar({ titulo: estado.titulo, participantes: estado.participantes, sorteados: estado.sorteados.slice(0, -1) })
+    atualizar({ sorteados: estado.sorteados.slice(0, -1) })
       .catch(function () { aviso("Não foi possível desfazer. Tente de novo."); });
   });
   el.btnRecomecar.addEventListener("click", async function () {
     var n = estado.sorteados.length;
     var ok = await confirmar("Recomeçar o sorteio?", "Os " + fmt(n) + " nomes já sorteados voltam para a disputa. A lista de participantes continua a mesma.", "Recomeçar");
     if (!ok) return;
-    salvar({ titulo: estado.titulo, participantes: estado.participantes, sorteados: [] })
+    atualizar({ sorteados: [] })
       .catch(function () { aviso("Não foi possível recomeçar. Tente de novo."); });
   });
   el.btnCopiar.addEventListener("click", function () {
@@ -1238,6 +1714,61 @@ body.apresentando .painel { display: none; }
       } else fallback();
     } catch (e) { fallback(); }
   });
+
+  el.brindeOpcoes.addEventListener("click", function (e) {
+    var b = e.target.closest(".opcao-brinde");
+    if (!b || b.disabled) return;
+    escolherBrinde(b.dataset.brinde);
+  });
+  el.listaSort.addEventListener("change", function (e) {
+    var sel = e.target.closest(".sel-brinde");
+    if (!sel || !podeEditar) return;
+    definirBrinde(sel.dataset.id, sel.value);
+  });
+  el.listaBrindes.addEventListener("click", function (e) {
+    var b = e.target.closest(".remover");
+    if (!b || !podeEditar) return;
+    atualizar({ brindes: estado.brindes.filter(function (x) { return x.nome !== b.dataset.brinde; }) })
+      .catch(function () { aviso("Não foi possível remover o brinde. Tente de novo."); });
+  });
+  el.listaBrindes.addEventListener("change", function (e) {
+    var q = e.target.closest(".qtd-b");
+    if (!q || !podeEditar) return;
+    var qtd = lerQuantidade(q.value);
+    if (qtd === undefined) { aviso("A quantidade precisa ser um número."); renderBrindesPainel(); return; }
+    atualizar({ brindes: estado.brindes.map(function (b) { return b.nome === q.dataset.brinde ? { nome: b.nome, qtd: qtd } : b; }) })
+      .catch(function () { aviso("A quantidade não foi salva. Tente de novo."); });
+  });
+  el.listaBrindes.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target.classList.contains("qtd-b")) { e.preventDefault(); e.target.blur(); }
+  });
+  el.listaBrindes.addEventListener("focusout", function (e) {
+    if (e.target.classList.contains("qtd-b")) setTimeout(renderBrindesPainel, 0);
+  });
+  el.btnAddBrinde.addEventListener("click", adicionarBrinde);
+  el.campoBrinde.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); adicionarBrinde(); } });
+  el.campoQtd.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); adicionarBrinde(); } });
+
+  el.btnEncerrar.addEventListener("click", async function () {
+    if (estado.encerrado) {
+      var reabrir = await confirmar("Reabrir o sorteio?", "Os sorteios continuam de onde pararam. Quem já foi sorteado não volta para a disputa.", "Reabrir");
+      if (reabrir) atualizar({ encerrado: false, encerradoEm: 0 }).catch(function () { aviso("Não foi possível reabrir. Tente de novo."); });
+      return;
+    }
+    var feitos = estado.sorteados.length;
+    var sem = estado.sorteados.filter(function (s) { return !s.brinde; }).length;
+    var texto = feitos
+      ? "Ninguém mais será sorteado. A planilha com " + (feitos === 1 ? "o sorteado" : "os " + fmt(feitos) + " sorteados") + " e os brindes será baixada em seguida."
+      : "Ninguém foi sorteado ainda, então não haverá planilha.";
+    if (sem) texto += " Atenção: " + fmt(sem) + (sem === 1 ? " sorteado está sem brinde e vai aparecer" : " sorteados estão sem brinde e vão aparecer") + " em branco na planilha.";
+    var ok = await confirmar("Encerrar o sorteio?", texto, feitos ? "Encerrar e baixar" : "Encerrar");
+    if (!ok) return;
+    var novo = Object.assign({}, estado, { encerrado: true, encerradoEm: Math.floor(Date.now() / 1000) });
+    try { await salvar(novo); } catch (err) { aviso("O sorteio não foi encerrado. Verifique a conexão e tente de novo."); return; }
+    if (feitos) baixarPlanilha(normalizar(novo));
+  });
+  el.btnBaixar.addEventListener("click", function () { baixarPlanilha(); });
+  el.btnBaixarPalco.addEventListener("click", function () { baixarPlanilha(); });
 
   el.modalOk.addEventListener("click", function () { fecharModal(true); });
   el.modalCancelar.addEventListener("click", function () { fecharModal(false); });
