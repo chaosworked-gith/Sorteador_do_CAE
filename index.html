@@ -332,6 +332,39 @@ input[type="file"]:focus-visible + label.btn { outline: 3px solid var(--branco);
 .opcao-brinde:hover { background: rgba(255, 255, 255, 0.14); }
 .opcao-brinde[aria-pressed="true"], .brinde-escolhido { background: var(--branco); color: var(--azul-marinho); border-color: var(--branco); }
 .brinde-escolhido { font-size: 18px; }
+.qtd-palco { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 12px; }
+.passo {
+  display: inline-flex; align-items: stretch;
+  border: 1.5px solid rgba(255, 255, 255, 0.55); background: rgba(0, 13, 66, 0.35);
+  transform: skewX(var(--inclinacao));
+}
+.passo button, .passo input { transform: skewX(10.75deg); }
+.passo button { background: none; border: 0; width: 38px; height: 36px; font-size: 20px; font-weight: 900; line-height: 1; }
+.passo button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+.passo button:disabled { opacity: 0.35; cursor: not-allowed; }
+.passo input {
+  width: 58px; height: 36px; padding: 0; text-align: center;
+  background: transparent; border: 0; border-inline: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; -moz-appearance: textfield;
+}
+.passo input::-webkit-outer-spin-button, .passo input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.passo input:focus { outline: none; background: rgba(255, 255, 255, 0.12); }
+/* Vários sorteados de uma vez: grade de nomes dentro da placa */
+.lote {
+  list-style: none; margin: 0; padding: 0; width: 100%;
+  display: grid; gap: 0.45em 1.1em;
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+  font-size: var(--tam, 22px); text-align: left;
+}
+.lote li {
+  display: flex; align-items: baseline; gap: 0.5em; min-width: 0;
+  font-weight: 900; text-transform: uppercase; line-height: 1.12;
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+}
+.lote li.entrando { opacity: 0; transform: translateY(10px) scale(0.96); }
+.lote .n { flex: none; font-size: 0.58em; color: var(--texto-2); font-variant-numeric: tabular-nums; letter-spacing: 0.04em; }
+.lote .txt { min-width: 0; overflow-wrap: anywhere; }
+.placa.com-lote .placa-texto { padding: 34px 24px 24px; }
 .opcao-brinde small { font-size: 11px; font-weight: 900; margin-left: 8px; padding: 1px 6px; border-radius: 2px; background: rgba(255, 255, 255, 0.18); font-variant-numeric: tabular-nums; }
 .opcao-brinde[aria-pressed="true"] small { background: var(--azul-marinho); color: var(--branco); }
 .opcao-brinde:disabled { opacity: 0.4; cursor: not-allowed; background: transparent; }
@@ -415,7 +448,7 @@ body.apresentando .painel { display: none; }
   .logos .filete { height: 26px; margin-inline: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .placa, .placa.revelado, .placa.revelado .nome, .palco.festa .fig { animation: none !important; transition: none; }
+  .placa, .placa.revelado, .placa.revelado .nome, .palco.festa .fig, .lote li { animation: none !important; transition: none !important; }
 }
 </style>
 </head>
@@ -452,12 +485,21 @@ body.apresentando .painel { display: none; }
         <div class="placa-area">
           <div class="selo"><span id="selo">Aguarde</span></div>
           <div class="placa" id="placa">
-            <div class="placa-texto"><p class="nome espera" id="nome">Carregando o sorteio…</p></div>
+            <div class="placa-texto"><p class="nome espera" id="nome">Carregando o sorteio…</p><ol class="lote" id="lote" hidden></ol></div>
           </div>
         </div>
         <div class="brinde-palco" id="brinde-palco" hidden>
           <div class="brinde-rotulo" id="brinde-rotulo">Brinde</div>
           <div class="brinde-opcoes" id="brinde-opcoes" role="group" aria-labelledby="brinde-rotulo"></div>
+        </div>
+        <div class="qtd-palco" id="qtd-palco" hidden>
+          <label class="brinde-rotulo" for="qtd-vez">Pessoas por sorteio</label>
+          <div class="passo">
+            <button type="button" id="menos-vez" aria-label="Sortear uma pessoa a menos">−</button>
+            <input id="qtd-vez" type="number" min="1" max="50" step="1" inputmode="numeric" value="1">
+            <button type="button" id="mais-vez" aria-label="Sortear uma pessoa a mais">+</button>
+          </div>
+          <button type="button" class="opcao-brinde" id="max-vez"><span>Máximo</span></button>
         </div>
         <div class="numeros" id="numeros" aria-live="off"></div>
         <button type="button" class="btn-sortear" id="btn-sortear" disabled><span id="rot-sortear">Sortear</span></button>
@@ -573,6 +615,7 @@ body.apresentando .painel { display: none; }
   var TITULO_PADRAO = "Sorteio CAE";
   var BRINDES_PADRAO = ["Boné", "Cooler", "Passa Fio", "GiftCard iFood"];
   var MAX_BRINDES = 12;
+  var MAX_POR_VEZ = 50;
   var ABA_ID = "aba-" + idAleatorio(10);
   var reduzMovimento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -594,7 +637,8 @@ body.apresentando .painel { display: none; }
     brindePalco: $("brinde-palco"), brindeRotulo: $("brinde-rotulo"), brindeOpcoes: $("brinde-opcoes"),
     btnBaixarPalco: $("btn-baixar-palco"), btnBaixar: $("btn-baixar"), btnEncerrar: $("btn-encerrar"),
     listaBrindes: $("lista-brindes"), campoBrinde: $("campo-brinde"), btnAddBrinde: $("btn-add-brinde"),
-    campoQtd: $("campo-qtd"), abaBrindes: $("aba-brindes"), secBrindes: $("sec-brindes"), qtdBrindes: $("qtd-brindes")
+    campoQtd: $("campo-qtd"), abaBrindes: $("aba-brindes"), secBrindes: $("sec-brindes"), qtdBrindes: $("qtd-brindes"),
+    lote: $("lote"), qtdPalco: $("qtd-palco"), qtdVez: $("qtd-vez"), menosVez: $("menos-vez"), maisVez: $("mais-vez"), maxVez: $("max-vez")
   };
 
   /* ---------- Utilidades ---------- */
@@ -637,7 +681,7 @@ body.apresentando .painel { display: none; }
 
   /* ---------- Estado ---------- */
   function brindesPadrao() { return BRINDES_PADRAO.map(function (n) { return { nome: n, qtd: null }; }); }
-  var estado = { titulo: TITULO_PADRAO, brindes: brindesPadrao(), brindeAtual: "", participantes: [], sorteados: [], encerrado: false, encerradoEm: 0 };
+  var estado = { titulo: TITULO_PADRAO, brindes: brindesPadrao(), brindeAtual: "", porVez: 1, participantes: [], sorteados: [], encerrado: false, encerradoEm: 0 };
   var downloads = null;
   var modo = "carregando";        // carregando | db | local
   var podeEditar = false;
@@ -664,6 +708,7 @@ body.apresentando .painel { display: none; }
     }).map(function (s) {
       var item = { id: s.id, em: typeof s.em === "number" ? s.em : 0 };
       if (typeof s.brinde === "string" && s.brinde.trim()) item.brinde = s.brinde.trim().slice(0, 40);
+      if (typeof s.lote === "string" && s.lote) item.lote = s.lote.slice(0, 16);
       return item;
     });
     // Cada brinde tem nome e quantidade; quantidade null quer dizer sem limite.
@@ -683,8 +728,9 @@ body.apresentando .painel { display: none; }
       }).slice(0, MAX_BRINDES);
     }
     var brindeAtual = typeof d.brindeAtual === "string" && brindes.some(function (b) { return b.nome === d.brindeAtual; }) ? d.brindeAtual : "";
+    var porVez = typeof d.porVez === "number" && isFinite(d.porVez) ? Math.max(1, Math.min(MAX_POR_VEZ, Math.floor(d.porVez))) : 1;
     return {
-      titulo: titulo, brindes: brindes, brindeAtual: brindeAtual, participantes: participantes, sorteados: sorteados,
+      titulo: titulo, brindes: brindes, brindeAtual: brindeAtual, porVez: porVez, participantes: participantes, sorteados: sorteados,
       encerrado: d.encerrado === true, encerradoEm: typeof d.encerradoEm === "number" ? d.encerradoEm : 0
     };
   }
@@ -702,6 +748,21 @@ body.apresentando .painel { display: none; }
   }
   function algumDisponivel(e) { return e.brindes.some(function (b) { return estoque(e, b.nome) > 0; }); }
   function brindeProntoParaSortear(e) { return !e.brindes.length || (!!e.brindeAtual && estoque(e, e.brindeAtual) > 0); }
+  // Quantas pessoas podem sair nesta rodada: limitado por quem está na disputa e pelo estoque do brinde da vez.
+  function maxPorVez(e) {
+    var m = Math.min(MAX_POR_VEZ, emDisputa(e).length);
+    if (e.brindes.length && e.brindeAtual) m = Math.min(m, estoque(e, e.brindeAtual));
+    return Math.max(0, m);
+  }
+  function quantosSortear(e) { return Math.max(1, Math.min(e.porVez, maxPorVez(e) || 1)); }
+  // Os últimos sorteados que saíram juntos na mesma rodada.
+  function ultimaRodada(e) {
+    var s = e.sorteados, n = s.length;
+    if (!n) return [];
+    var lote = s[n - 1].lote, i = n - 1;
+    if (lote) while (i > 0 && s[i - 1].lote === lote) i--;
+    return s.slice(i);
+  }
   // Salva o estado atual com as mudanças pedidas, sem perder os outros campos.
   function atualizar(mudancas) { return salvar(Object.assign({}, estado, mudancas)); }
   function mapaNomes(e) { var m = {}; e.participantes.forEach(function (p) { m[p.id] = p.nome; }); return m; }
@@ -733,9 +794,11 @@ body.apresentando .painel { display: none; }
       mostrarPalco();
       return;
     }
-    if (n === antes + 1) {
+    if (n > antes) {
       contagemVista = n;
-      revelar(novo.sorteados[n - 1].id, n);
+      var novos = novo.sorteados.slice(antes);
+      if (novos.length === 1) revelar(novos[0].id, n);
+      else revelarLote(novos, antes + 1);
     } else {
       if (n !== antes) { tokenAnim++; animando = false; }
       contagemVista = n;
@@ -813,10 +876,18 @@ body.apresentando .painel { display: none; }
       var restantes = emDisputa(base);
       if (!restantes.length) { aviso("Todos os nomes já foram sorteados."); return; }
       if (!brindeProntoParaSortear(base)) { aviso("Escolha o brinde da vez antes de sortear."); return; }
-      var escolhido = restantes[sorteioJusto(restantes.length)];
-      var item = { id: escolhido.id, em: Math.floor(Date.now() / 1000) };
-      if (base.brindeAtual) item.brinde = base.brindeAtual;
-      var novo = Object.assign({}, base, { sorteados: base.sorteados.concat([item]) });
+      // Sorteia k pessoas diferentes de uma vez (embaralhamento parcial com crypto).
+      var k = quantosSortear(base);
+      var urna = restantes.slice(), em = Math.floor(Date.now() / 1000), lote = idAleatorio(8), itens = [];
+      for (var i = 0; i < k && urna.length; i++) {
+        var j = sorteioJusto(urna.length);
+        var item = { id: urna[j].id, em: em, lote: lote };
+        if (base.brindeAtual) item.brinde = base.brindeAtual;
+        itens.push(item);
+        urna[j] = urna[urna.length - 1];
+        urna.pop();
+      }
+      var novo = Object.assign({}, base, { sorteados: base.sorteados.concat(itens) });
       // Se este sorteio levou a última unidade, o próximo brinde precisa ser escolhido de novo.
       if (novo.brindeAtual && estoque(novo, novo.brindeAtual) <= 0) novo.brindeAtual = "";
       await salvar(novo);
@@ -836,6 +907,7 @@ body.apresentando .painel { display: none; }
     var pool = estado.participantes.map(function (p) { return p.nome; });
     var brinde = (estado.sorteados[numero - 1] || {}).brinde || "";
     el.placa.classList.remove("revelado");
+    mostrarSoNome();
     if (!reduzMovimento && pool.length > 1) {
       el.placa.classList.add("girando");
       el.selo.textContent = brinde ? "Sorteando: " + brinde : "Sorteando…";
@@ -863,19 +935,104 @@ body.apresentando .painel { display: none; }
     atualizarBotao();
   }
 
+  async function revelarLote(itens, primeiro) {
+    var token = ++tokenAnim;
+    animando = true;
+    atualizarBotao();
+    var pool = estado.participantes.map(function (p) { return p.nome; });
+    var brinde = itens[0].brinde || "";
+    var k = itens.length, ultimo = primeiro + k - 1;
+    el.placa.classList.remove("revelado");
+    mostrarSoNome();
+    if (!reduzMovimento && pool.length > 1) {
+      el.placa.classList.add("girando");
+      el.selo.textContent = "Sorteando " + k + " nomes" + (brinde ? ": " + brinde : "…");
+      el.nome.classList.remove("espera");
+      var d = 45;
+      while (d < 230) {
+        if (token !== tokenAnim) return;
+        el.nome.textContent = pool[Math.floor(Math.random() * pool.length)];
+        ajustarNome();
+        Som.tique();
+        await espera(d);
+        d *= 1.12;
+      }
+      if (token !== tokenAnim) return;
+      el.placa.classList.remove("girando");
+    }
+    var passo = reduzMovimento ? 0 : Math.min(160, 2400 / k);
+    mostrarLote(itens, primeiro, passo);
+    el.selo.textContent = "Sorteados nº " + primeiro + " a " + ultimo + (brinde ? " · " + brinde : "");
+    await espera(passo * k + 250);
+    if (token !== tokenAnim) return;
+    void el.placa.offsetWidth;
+    el.placa.classList.add("revelado");
+    var nomes = mapaNomes(estado);
+    el.anuncio.textContent = k + " sorteados" + (brinde ? " com " + brinde : "") + ": " + itens.map(function (s) { return nomes[s.id] || ""; }).join(", ");
+    Som.final();
+    faiscas();
+    festa();
+    animando = false;
+    atualizarBotao();
+  }
+
   /* ---------- Palco ---------- */
+  function mostrarSoNome() { el.lote.hidden = true; el.nome.hidden = false; el.placa.classList.remove("com-lote"); }
   function mostrarVencedor(nome, numero, brinde) {
+    mostrarSoNome();
     el.selo.textContent = "Sorteado nº " + numero + (brinde ? " · " + brinde : "");
     el.nome.classList.remove("espera");
     el.nome.textContent = nome;
     ajustarNome();
   }
   function mostrarEspera(selo, texto) {
+    mostrarSoNome();
     el.placa.classList.remove("revelado", "girando");
     el.selo.textContent = selo;
     el.nome.classList.add("espera");
     el.nome.textContent = texto;
     ajustarNome();
+  }
+  // Grade com os nomes de uma rodada; passo > 0 faz os nomes entrarem um a um.
+  function mostrarLote(itens, primeiro, passo) {
+    var nomes = mapaNomes(estado);
+    var frag = document.createDocumentFragment();
+    var lis = itens.map(function (s, i) {
+      var li = document.createElement("li");
+      var n = document.createElement("span"); n.className = "n"; n.textContent = "nº " + (primeiro + i);
+      var t = document.createElement("span"); t.className = "txt"; t.textContent = nomes[s.id] || "";
+      li.appendChild(n); li.appendChild(t);
+      if (passo) li.classList.add("entrando");
+      frag.appendChild(li);
+      return li;
+    });
+    el.lote.replaceChildren(frag);
+    el.nome.hidden = true;
+    el.lote.hidden = false;
+    el.placa.classList.add("com-lote");
+    ajustarLote();
+    // Os nomes entram um a um, com um tique para cada.
+    if (passo) lis.forEach(function (li, i) {
+      setTimeout(function () { li.classList.remove("entrando"); Som.tique(); }, Math.round(i * passo));
+    });
+  }
+  // Escolhe colunas e tamanho de letra para a rodada caber na placa.
+  function ajustarLote() {
+    var l = el.lote;
+    if (l.hidden || !l.children.length) return;
+    var largura = l.clientWidth;
+    if (!largura) return;
+    var k = l.children.length;
+    var cols = Math.max(1, Math.min(Math.ceil(Math.sqrt(k)), Math.floor(largura / 130), k));
+    l.style.setProperty("--cols", cols);
+    var maxH = Math.max(200, window.innerHeight * 0.4);
+    var lo = 11, hi = 40, melhor = lo;
+    for (var i = 0; i < 10; i++) {
+      var meio = (lo + hi) / 2;
+      l.style.setProperty("--tam", meio + "px");
+      if (l.scrollHeight <= maxH) { melhor = meio; lo = meio; } else { hi = meio; }
+    }
+    l.style.setProperty("--tam", Math.floor(melhor) + "px");
   }
   function mostrarPalco() {
     el.tituloPalco.textContent = estado.titulo;
@@ -884,9 +1041,15 @@ body.apresentando .painel { display: none; }
     else if (!estado.participantes.length) { mostrarEspera(estado.titulo, "Adicione os participantes"); }
     else if (!estado.sorteados.length) { mostrarEspera("Próximo: nº 1", "Pronto para sortear"); }
     else {
-      var n = estado.sorteados.length;
+      var n = estado.sorteados.length, rodada = ultimaRodada(estado);
       el.placa.classList.remove("girando");
-      mostrarVencedor(mapaNomes(estado)[estado.sorteados[n - 1].id] || "", n, estado.sorteados[n - 1].brinde);
+      if (rodada.length > 1) {
+        var primeiro = n - rodada.length + 1, brinde = rodada[0].brinde;
+        mostrarLote(rodada, primeiro, 0);
+        el.selo.textContent = "Sorteados nº " + primeiro + " a " + n + (brinde ? " · " + brinde : "");
+      } else {
+        mostrarVencedor(mapaNomes(estado)[estado.sorteados[n - 1].id] || "", n, estado.sorteados[n - 1].brinde);
+      }
     }
     atualizarBotao();
   }
@@ -935,7 +1098,8 @@ body.apresentando .painel { display: none; }
     var concluido = total > 0 && resta === 0;
     var esgotados = estado.brindes.length > 0 && !algumDisponivel(estado);
     var pronto = brindeProntoParaSortear(estado);
-    el.rotSortear.textContent = concluido ? "Sorteio concluído" : esgotados ? "Brindes esgotados" : "Sortear";
+    var k = quantosSortear(estado);
+    el.rotSortear.textContent = concluido ? "Sorteio concluído" : esgotados ? "Brindes esgotados" : "Sortear" + (k > 1 && pronto ? " " + k : "");
     el.btnSortear.disabled = modo === "carregando" || animando || gravando || resta === 0 || !pronto;
     if (fechado) {
       el.dica.className = "dica";
@@ -963,6 +1127,29 @@ body.apresentando .painel { display: none; }
     el.btnEncerrar.disabled = modo === "carregando" || animando || (!fechado && !total);
     el.btnBaixar.disabled = modo === "carregando" || !feitos;
     renderBrindePalco();
+    renderQtdPalco();
+  }
+
+  /* ---------- Quantas pessoas por sorteio ---------- */
+  function renderQtdPalco() {
+    var max = maxPorVez(estado);
+    var mostrar = podeEditar && modo !== "carregando" && !animando && !estado.encerrado && emDisputa(estado).length > 1 && brindeProntoParaSortear(estado);
+    el.qtdPalco.hidden = !mostrar;
+    if (!mostrar) return;
+    var k = quantosSortear(estado);
+    if (document.activeElement !== el.qtdVez) el.qtdVez.value = String(k);
+    el.qtdVez.max = String(max);
+    el.menosVez.disabled = k <= 1;
+    el.maisVez.disabled = k >= max;
+    el.maxVez.hidden = max <= 1 || k >= max;
+    el.maxVez.firstChild.textContent = "Máximo: " + fmt(max);
+  }
+  function definirPorVez(valor) {
+    if (!podeEditar || animando) return;
+    var max = maxPorVez(estado);
+    var k = Math.max(1, Math.min(max || 1, Math.floor(Number(valor)) || 1));
+    if (k === estado.porVez) { renderQtdPalco(); return; }
+    atualizar({ porVez: k }).catch(function () { aviso("A quantidade por sorteio não foi salva. Tente de novo."); });
   }
 
   /* ---------- Brinde de cada sorteado ---------- */
@@ -1213,8 +1400,12 @@ body.apresentando .painel { display: none; }
       var b = s.brinde || "Sem brinde";
       contagem[b] = (contagem[b] || 0) + 1;
     });
-    var sorteados = [["Nº", "Nome", "Brinde", "Data", "Hora"]].concat(e.sorteados.map(function (s, i) {
-      return [i + 1, nomes[s.id] || "", s.brinde || "", dataBr(s.em), hora(s.em)];
+    // Rodada: quem saiu junto no mesmo clique de "Sortear" fica com o mesmo número.
+    var rodada = 0, loteAnterior = null;
+    var sorteados = [["Nº", "Rodada", "Nome", "Brinde", "Data", "Hora"]].concat(e.sorteados.map(function (s, i) {
+      if (!s.lote || s.lote !== loteAnterior) rodada++;
+      loteAnterior = s.lote || null;
+      return [i + 1, rodada, nomes[s.id] || "", s.brinde || "", dataBr(s.em), hora(s.em)];
     }));
     var brindes = [["Brinde", "Quantidade", "Sorteados", "Sobraram"]];
     e.brindes.forEach(function (b) {
@@ -1231,7 +1422,7 @@ body.apresentando .painel { display: none; }
       return [i + 1, p.nome, n ? "Sim" : "Não", n || "", n ? brindeDe[p.id] : ""];
     }));
     return Xlsx.gerar([
-      { nome: "Sorteados", linhas: sorteados, larguras: [8, 42, 24, 14, 10] },
+      { nome: "Sorteados", linhas: sorteados, larguras: [8, 10, 42, 24, 14, 10] },
       { nome: "Brindes", linhas: brindes, larguras: [28, 14, 12, 12] },
       { nome: "Participantes", linhas: participantes, larguras: [8, 42, 12, 16, 24] }
     ]);
@@ -1692,10 +1883,15 @@ body.apresentando .painel { display: none; }
   el.btnDesfazer.addEventListener("click", async function () {
     var n = estado.sorteados.length;
     if (!n) return;
-    var nome = mapaNomes(estado)[estado.sorteados[n - 1].id] || "";
-    var ok = await confirmar("Desfazer o sorteio nº " + n + "?", "O nome " + nome + " volta para a disputa e pode sair de novo.", "Desfazer");
+    var rodada = ultimaRodada(estado), k = rodada.length, ok;
+    if (k > 1) {
+      ok = await confirmar("Desfazer o último sorteio?", "Os " + fmt(k) + " nomes dessa rodada (nº " + (n - k + 1) + " a " + n + ") voltam para a disputa" + (rodada[0].brinde ? " e os brindes voltam para o estoque." : "."), "Desfazer");
+    } else {
+      var nome = mapaNomes(estado)[estado.sorteados[n - 1].id] || "";
+      ok = await confirmar("Desfazer o sorteio nº " + n + "?", "O nome " + nome + " volta para a disputa e pode sair de novo.", "Desfazer");
+    }
     if (!ok) return;
-    atualizar({ sorteados: estado.sorteados.slice(0, -1) })
+    atualizar({ sorteados: estado.sorteados.slice(0, n - k) })
       .catch(function () { aviso("Não foi possível desfazer. Tente de novo."); });
   });
   el.btnRecomecar.addEventListener("click", async function () {
@@ -1745,6 +1941,11 @@ body.apresentando .painel { display: none; }
   el.listaBrindes.addEventListener("focusout", function (e) {
     if (e.target.classList.contains("qtd-b")) setTimeout(renderBrindesPainel, 0);
   });
+  el.menosVez.addEventListener("click", function () { definirPorVez(quantosSortear(estado) - 1); });
+  el.maisVez.addEventListener("click", function () { definirPorVez(quantosSortear(estado) + 1); });
+  el.maxVez.addEventListener("click", function () { definirPorVez(maxPorVez(estado)); });
+  el.qtdVez.addEventListener("change", function () { definirPorVez(el.qtdVez.value); });
+  el.qtdVez.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); el.qtdVez.blur(); } });
   el.btnAddBrinde.addEventListener("click", adicionarBrinde);
   el.campoBrinde.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); adicionarBrinde(); } });
   el.campoQtd.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); adicionarBrinde(); } });
@@ -1792,7 +1993,7 @@ body.apresentando .painel { display: none; }
     document.addEventListener(tipo, function () { Som.destravar(); }, { capture: true, passive: true });
   });
 
-  if (window.ResizeObserver) new ResizeObserver(function () { ajustarNome(); }).observe(el.placa);
+  if (window.ResizeObserver) new ResizeObserver(function () { ajustarNome(); ajustarLote(); }).observe(el.placa);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarNome);
 
   try { Som.ligado = localStorage.getItem(CHAVE_SOM) !== "0"; } catch (e) {}
